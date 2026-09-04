@@ -1,392 +1,254 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>试卷难度与实力估计（多级过程分·修正版）</title>
-    <style>
-        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #f4f7fc; margin: 0; padding: 2rem 1rem; display: flex; justify-content: center; }
-        .container { max-width: 1100px; width: 100%; background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.07); }
-        h1 { font-size: 1.8rem; font-weight: 600; margin-top: 0; color: #0b1e33; border-bottom: 2px solid #eef2f6; padding-bottom: 0.6rem; }
-        .global-time { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0 1.5rem 0; flex-wrap: wrap; background: #f8fafc; padding: 0.8rem 1.2rem; border-radius: 12px; }
-        .global-time label { font-weight: 500; color: #1e293b; }
-        .global-time input { width: 100px; padding: 0.4rem 0.6rem; border: 1px solid #d1d9e6; border-radius: 8px; font-size: 0.95rem; text-align: center; }
-        .toolbar { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        button { padding: 0.55rem 1.4rem; border: none; border-radius: 40px; font-weight: 500; font-size: 0.95rem; background: #eef2f6; color: #1e293b; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; }
-        button.primary { background: #2563eb; color: white; box-shadow: 0 4px 8px rgba(37,99,235,0.15); }
-        button.primary:hover { background: #1d4ed8; transform: translateY(-1px); }
-        button.success { background: #16a34a; color: white; box-shadow: 0 4px 8px rgba(22,163,74,0.15); }
-        button.success:hover { background: #15803d; transform: translateY(-1px); }
-        button.outline { background: transparent; border: 1.5px solid #d1d9e6; }
-        button.outline:hover { background: #f1f4fa; }
-        button.danger { background: #ef4444; color: white; }
-        button.danger:hover { background: #dc2626; }
-        .problem-card { background: #fafcff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.2rem 1.2rem 0.8rem 1.2rem; margin-bottom: 1.2rem; transition: border 0.2s; }
-        .problem-card:hover { border-color: #cbd5e1; }
-        .problem-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; flex-wrap: wrap; }
-        .problem-title { font-weight: 600; font-size: 1.05rem; color: #1e293b; }
-        .branch-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
-        .branch-table th { background: #f1f4fa; color: #1e293b; font-weight: 600; padding: 0.4rem 0.3rem; text-align: center; border-bottom: 2px solid #d1d9e6; }
-        .branch-table td { padding: 0.3rem 0.2rem; text-align: center; border-bottom: 1px solid #e9edf4; }
-        .branch-table input { width: 100%; min-width: 60px; padding: 0.35rem 0.3rem; border: 1px solid #d1d9e6; border-radius: 8px; font-size: 0.85rem; text-align: center; background: white; transition: border 0.2s; }
-        .branch-table input:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-        .branch-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
-        .branch-actions button { padding: 0.2rem 0.8rem; font-size: 0.8rem; }
-        .result-box { background: #f8faff; border-radius: 16px; padding: 1.2rem 1.6rem; margin: 1.5rem 0 1rem 0; border-left: 5px solid #2563eb; }
-        .result-box h3 { margin: 0 0 0.3rem 0; font-weight: 500; color: #1e293b; }
-        .result-box .value { font-size: 1.8rem; font-weight: 700; color: #0b1e33; }
-        .row-flex { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 1.2rem 0; }
-        .row-flex label { font-weight: 500; color: #2c3e50; }
-        .row-flex input { padding: 0.4rem 0.8rem; border: 1px solid #d1d9e6; border-radius: 8px; width: 130px; font-size: 0.95rem; }
-        .hint { color: #64748b; font-size: 0.85rem; margin-top: 0.2rem; }
-        .footnote { margin-top: 2rem; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid #e9edf4; padding-top: 1rem; text-align: center; }
-        .empty-msg { color: #94a3b8; padding: 1rem 0; text-align: center; }
-        .warning { color: #b45309; background: #fffbeb; padding: 0.4rem 0.8rem; border-radius: 8px; border-left: 4px solid #f59e0b; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>试卷难度 · 得分分布 · 实力估计（理性分配 · JSON导入导出）</title>
+<style>
+  * { box-sizing:border-box; font-family:system-ui,'Segoe UI',Roboto,sans-serif; }
+  body{ background:#f4f7fc; margin:0; padding:2rem 1rem; display:flex; justify-content:center; }
+  .container{ max-width:1080px; width:100%; background:#fff; padding:2rem; border-radius:24px; box-shadow:0 8px 30px rgba(0,0,0,.07); }
+  h1{ font-size:1.5rem; margin-top:0; color:#0b1e33; border-bottom:2px solid #eef2f6; padding-bottom:.6rem; }
+  .row{ display:flex; flex-wrap:wrap; gap:.8rem 1.3rem; align-items:center; margin:.8rem 0; }
+  .row label{ font-weight:600; color:#1e293b; font-size:.93rem; }
+  .row input[type=number], .row input:not([type=file]){ width:104px; padding:.4rem .6rem; border:1px solid #cbd5e1; border-radius:8px; font-size:.93rem; text-align:center; }
+  button{ padding:.5rem 1.1rem; border:none; border-radius:40px; font-weight:600; font-size:.9rem; cursor:pointer; }
+  .primary{ background:#2563eb; color:#fff; } .ghost{ background:#eef2f6; color:#1e293b; }
+  .danger{ background:#ef4444; color:#fff; } .ok{ background:#16a34a; color:#fff; }
+  .card{ background:#fafcff; border:1px solid #e2e8f0; border-radius:14px; padding:.9rem; margin:.6rem 0; }
+  table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+  th{ background:#eef3fb; padding:.3rem; } td,th{ border-bottom:1px solid #e6ecf4; text-align:center; padding:.22rem .18rem; }
+  input.cell{ width:100%; min-width:54px; padding:.28rem; border:1px solid #d1d9e6; border-radius:6px; text-align:center; }
+  .box{ background:#f8faff; border-left:5px solid #2563eb; border-radius:12px; padding:.85rem 1.3rem; margin:1rem 0; }
+  .big{ font-size:1.45rem; font-weight:800; color:#0b1e33; }
+  .dim{ color:#64748b; font-size:.82rem; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:1rem; }
+  .disttab{ max-height:320px; overflow:auto; display:block; }
+  .note{ background:#eff6ff; border:1px dashed #93c5fd; border-radius:10px; padding:.5rem .9rem; font-size:.84rem; color:#1d4ed8; }
+</style>
 </head>
 <body>
 <div class="container">
-    <h1>📊 试卷难度 & 考生实力估计（多级过程分）</h1>
+<h1>📊 试卷难度 · 得分分布 · 实力估计 <span style="font-size:.9rem;color:#64748b">（理性时间分配）</span></h1>
 
-    <div class="global-time">
-        <label for="totalTime">⏱ 总考试时间（分钟）：</label>
-        <input type="number" id="totalTime" step="0.1" min="0.1" placeholder="例如 60" />
-        <span style="color:#64748b; font-size:0.9rem;">（所有题目均分此时间）</span>
-    </div>
+<div class="row">
+  <label>⏱ T（分）<input id="T" type="number" step="1" min="1" value="180" /></label>
+  <label>🎯 实力 μ <input id="mu" type="number" step="0.05" value="15.6" /></label>
+  <label>📈 分数 D <input id="D" type="number" step="any" min="0" value="90" /></label>
+  <label>🎯 达标概率 q（分位线用）<input id="q" type="number" step="0.05" min="0.01" max="0.99" value="0.5" /></label>
+</div>
+<div class="row">
+  <button class="primary" onclick="computeAll()">▶ 计算</button>
+  <button class="ok" onclick="exportJSON()">⬇ 导出试卷JSON</button>
+  <button class="ghost" onclick="document.getElementById('fileIn').click()">⬆ 导入试卷JSON</button>
+  <input type="file" id="fileIn" accept=".json,application/json" style="display:none" onchange="importJSON(event)" />
+  <button class="ghost" onclick="addProblem()">＋ 添加大题</button>
+  <span class="dim">档模型 q=Φ(2(μ−a))·Φ(2(log₂t−b+0.5μ+2.5))；E(μ)=max ΣΔv·q（分钟背包DP，收手自动）；难度M：E(M)=满分/2</span>
+</div>
 
-    <div class="toolbar">
-        <button class="primary" onclick="addProblem()">➕ 添加大题</button>
-        <button class="primary" onclick="computeDifficulty()">📐 计算试卷难度 M</button>
-    </div>
+<div id="problems"></div>
 
-    <div id="problemsContainer">
-        <div class="empty-msg">点击「添加大题」开始组卷</div>
-    </div>
-
-    <div class="result-box" id="difficultyResult" style="display:none;">
-        <h3>📌 试卷难度指标 M</h3>
-        <div class="value" id="mValue">—</div>
-        <div class="hint">期望总分 = 满分一半 时对应的考生实力 μ</div>
-    </div>
-
-    <div class="row-flex">
-        <label for="scoreInput">考生得分 D：</label>
-        <input type="number" id="scoreInput" step="0.1" min="0" placeholder="例如 75" />
-        <button class="success" onclick="estimateMu()">🎯 估计实力 μ</button>
-    </div>
-
-    <div class="result-box" id="muResult" style="display:none;">
-        <h3>🧠 估计的考生实力 μ</h3>
-        <div class="value" id="muValue">—</div>
-        <div class="hint" id="muHint">基于逻辑斯蒂克近似反推（要求 0 < D < 满分）</div>
-    </div>
-
-    <div class="footnote">
-        模型：P(做对) = Φ((μ−a)/0.5) · Φ((log₂(t)−b+0.5μ+2.5)/0.5) <br />
-        过程分采用累积概率差分，每题时间 = 总时间 / 题目数。
-    </div>
+<div id="out" style="display:none">
+  <div class="box"><h3>① 卷面与最优时间分配（μ 给定）</h3>
+    <div class="big" id="overview"></div>
+    <div class="dim" id="allocNote"></div></div>
+  <div class="grid">
+    <div class="box"><h3>② 难度 M（期望=满分一半）</h3><div class="big" id="Mbox"></div><div class="dim" id="Mhint"></div></div>
+    <div class="box"><h3>③ 由得分 D 估计实力：矩估计 μ̂</h3>
+      <div class="big" id="muhat"></div>
+      <div class="dim" id="muhat2"></div></div>
+  </div>
+  <div class="box"><h3>④ “上 D 分线”的难度：分位数线 μ_D(q)（解 P(S≥D;μ)=q）</h3>
+    <div class="big" id="quantLine"></div>
+    <div class="dim" id="quantNote"></div></div>
+  <div class="box"><h3>⑤ 给定 μ 的得分分布</h3>
+    <div class="dim" id="distSum"></div>
+    <div class="disttab" id="distTab"></div></div>
+</div>
 </div>
 
 <script>
-    // ---------- 数值工具 ----------
-    function erf_approx(x) {
-        const sign = x >= 0 ? 1 : -1;
-        x = Math.abs(x);
-        const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
-              a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-        const t = 1 / (1 + p * x);
-        const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-        return sign * y;
-    }
-    function normCDF(x) { return 0.5 * (1 + erf_approx(x / Math.SQRT2)); }
-    function normPDF(x) { return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x); }
+// ================= 正态 =================
+function erf(x){ const s=x<0?-1:1; x=Math.abs(x);
+  const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;
+  const t=1/(1+p*x); return s*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x)); }
+const Phi = x => .5*(1+erf(x/Math.SQRT2));
+const log2 = x => Math.log(x)/Math.LN2;
 
-    // ---------- 全局数据 ----------
-    let problems = []; // 存储每道题的数据结构：{ main: {score, a, b}, branches: [{score, a, b}] }
+// ================= 数据 =================
+let problems=[ {main:{score:50,a:16.0,b:17.0}, branches:[{score:20,a:15.5,b:16.0}]},
+               {main:{score:50,a:17.0,b:18.0}, branches:[]},
+               {main:{score:40,a:15.0,b:15.5}, branches:[]},
+               {main:{score:40,a:13.5,b:13.5}, branches:[]} ];
+const tiers=p=>{ const all=[p.main,...(p.branches||[])].slice().sort((x,y)=>x.score-y.score);
+  const u=[]; let last=-1/0; for(const it of all){ if(it.score!==last){ u.push(it); last=it.score; } } return u; };
+function qk(mu,tr,t){ return Phi(2*(mu-tr.a))*Phi(2*(log2(t)-tr.b+0.5*mu+2.5)); }
+function fProblem(mu,p,t){ if(!(t>0)) return 0; let E=0,prev=0;
+  for(const tr of tiers(p)){ if(tr.score<=prev) continue; E += (tr.score-prev)*qk(mu,tr,t); prev=tr.score; } return E; }
+const Smax=()=>problems.reduce((s,p)=>s+p.main.score,0);
 
-    // ---------- DOM 同步：将当前界面数据读入 problems ----------
-    function syncProblemsFromDOM() {
-        const cards = document.querySelectorAll('.problem-card');
-        if (cards.length === 0) {
-            problems = [];
-            return;
-        }
-        const newProblems = [];
-        for (const card of cards) {
-            // 主档次
-            const mainScore = parseFloat(card.querySelector('.main-score').value);
-            const mainA = parseFloat(card.querySelector('.main-a').value);
-            const mainB = parseFloat(card.querySelector('.main-b').value);
-            if (isNaN(mainScore) || mainScore <= 0) {
-                // 不阻断，但后续校验会提示
-            }
-            const main = { score: isNaN(mainScore) ? 0 : mainScore, a: isNaN(mainA) ? 0 : mainA, b: isNaN(mainB) ? 0 : mainB };
+// ============ 理性最优分配（分钟背包DP） ============
+function plan(mu,T){
+  const n=problems.length, dt=T>360?2:1, K=Math.floor(T/dt)+1, f=[];
+  for(const p of problems){ const row=new Array(K).fill(0);
+    for(let k=1;k<K;k++) row[k]=fProblem(mu,p,k*dt); f.push(row); }
+  const V=[]; for(let i=0;i<=n;i++) V.push(new Array(K).fill(0));
+  const ARG=[]; for(let i=0;i<n;i++) ARG.push(new Array(K).fill(0));
+  for(let i=n-1;i>=0;i--){ const fi=f[i],Vn=V[i+1],Vi=V[i];
+    for(let r=0;r<K;r++){ let best=-1,bt=0;
+      for(let t=0;t<=r;t++){ const v=fi[t]+Vn[r-t]; if(v>best+1e-12){best=v;bt=t;} }
+      Vi[r]=best; ARG[i][r]=bt; } }
+  const ts=[]; let rem=K-1;
+  for(let i=0;i<n;i++){ const t=ARG[i][rem]; ts.push(t*dt); rem-=t; }
+  return {E:V[0][K-1], ts};
+}
+function Eof(mu,T){ return plan(mu,T).E; }
 
-            // 过程分档次
-            const scoreInputs = card.querySelectorAll('.b-score');
-            const aInputs = card.querySelectorAll('.b-a');
-            const bInputs = card.querySelectorAll('.b-b');
-            const branches = [];
-            for (let i = 0; i < scoreInputs.length; i++) {
-                const s = parseFloat(scoreInputs[i].value);
-                const a = parseFloat(aInputs[i].value);
-                const b = parseFloat(bInputs[i].value);
-                if (!isNaN(s) && s > 0) {
-                    branches.push({ score: s, a: isNaN(a) ? 0 : a, b: isNaN(b) ? 0 : b });
-                }
-            }
-            newProblems.push({ main, branches });
-        }
-        problems = newProblems;
-    }
+// 得分分布（给定μ，按最优分配；档位用累积差分）
+function getDist(mu,T){
+  const pl=plan(mu,T); const pfs=[];
+  problems.forEach((p,i)=>{ const t=pl.ts[i];
+    const trs=tiers(p); const q=trs.map(tr=> t>0 ? qk(mu,tr,t) : 0);
+    let mono=true; for(let j=0;j+1<q.length;j++) if(q[j]<q[j+1]-1e-12) mono=false;
+    const pf=[{s:0,p:Math.max(0,1-q[0])}];
+    trs.forEach((tr,j)=>{ const nxt=j+1<q.length?q[j+1]:0; pf.push({s:tr.score,p:Math.max(0,q[j]-nxt)}); });
+    pfs.push({pf,mono});
+  });
+  let dp=new Map([[0,1]]);
+  for(const {pf} of pfs){ const nd=new Map();
+    for(const [s,p] of dp) for(const it of pf){ const ns=s+it.s; nd.set(ns,(nd.get(ns)||0)+p*it.p); } dp=nd; }
+  return {dp, ts:pl.ts, E:pl.E};
+}
+const tailGe=(dp,D)=>[...dp].filter(([s])=>s>=D-1e-9).reduce((a,r)=>a+r[1],0);
 
-    // ---------- 渲染 ----------
-    function render() {
-        const container = document.getElementById('problemsContainer');
-        if (!problems.length) {
-            container.innerHTML = '<div class="empty-msg">点击「添加大题」开始组卷</div>';
-            return;
-        }
-        let html = '';
-        problems.forEach((p, pIdx) => {
-            const main = p.main;
-            html += `
-                <div class="problem-card" data-pindex="${pIdx}">
-                    <div class="problem-header">
-                        <span class="problem-title">📝 题目 #${pIdx + 1} （满分 ${main.score || '?'} 分）</span>
-                        <button class="danger" style="padding:0.2rem 0.8rem;" onclick="removeProblem(${pIdx})">删除题目</button>
-                    </div>
-                    <table class="branch-table">
-                        <thead><tr><th style="width:18%;">得分 v</th><th style="width:27%;">门槛 a</th><th style="width:27%;">计算要求 b</th><th style="width:28%;">备注</th></tr></thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="number" step="any" min="0" class="main-score" value="${main.score !== undefined && main.score !== null ? main.score : ''}" placeholder="满分" /></td>
-                                <td><input type="number" step="any" class="main-a" value="${main.a !== undefined && main.a !== null ? main.a : ''}" placeholder="a" /></td>
-                                <td><input type="number" step="any" class="main-b" value="${main.b !== undefined && main.b !== null ? main.b : ''}" placeholder="b" /></td>
-                                <td style="font-size:0.8rem; color:#64748b;">主档次（满分）</td>
-                            </tr>
-                            ${p.branches.map((b, bIdx) => `
-                                <tr>
-                                    <td><input type="number" step="any" min="0" class="b-score" value="${b.score !== undefined && b.score !== null ? b.score : ''}" placeholder="得分" /></td>
-                                    <td><input type="number" step="any" class="b-a" value="${b.a !== undefined && b.a !== null ? b.a : ''}" placeholder="a" /></td>
-                                    <td><input type="number" step="any" class="b-b" value="${b.b !== undefined && b.b !== null ? b.b : ''}" placeholder="b" /></td>
-                                    <td><button class="danger" style="padding:0.1rem 0.6rem; font-size:0.75rem;" onclick="removeBranch(${pIdx}, ${bIdx})">✕</button></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <div class="branch-actions">
-                        <button class="outline" onclick="addBranch(${pIdx})">➕ 添加过程分</button>
-                    </div>
-                    <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.3rem;">过程分得分应小于满分，系统自动排序。</div>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    }
+// 单调反解（μ 域）
+function bis(fn,tg,lo=-30,hi=45){ let a=lo,b=hi;
+  while(fn(a)>tg){a-=5;} while(fn(b)<tg){b+=5;}
+  for(let i=0;i<80;i++){ const m=(a+b)/2; if(fn(m)<tg)a=m; else b=m; if(b-a<1e-8)break; }
+  return (a+b)/2; }
 
-    // ---------- 操作函数（先同步数据，再修改，再渲染） ----------
-    function addProblem() {
-        syncProblemsFromDOM();
-        problems.push({
-            main: { score: undefined, a: undefined, b: undefined },
-            branches: []
-        });
-        render();
-    }
+// ================= 界面 =================
+function render(){
+  const box=document.getElementById('problems');
+  if(!problems.length){ box.innerHTML='<div class="card dim">先添加大题</div>'; return; }
+  box.innerHTML=problems.map((p,pi)=>`
+    <div class="card"><b>题目 #${pi+1} · 满分 ${p.main.score??'?'}</b>
+      <button class="danger" style="float:right" onclick="removeProblem(${pi})">删</button>
+      <table><tr><th style="width:20%">分值</th><th style="width:26%">门槛 a</th><th style="width:26%">计算 b</th><th style="width:28%">说明</th></tr>
+      <tr><td><input class="cell" data-p="${pi}" data-role="main" data-f="score" value="${p.main.score??''}"></td>
+          <td><input class="cell" data-p="${pi}" data-role="main" data-f="a" value="${p.main.a??''}"></td>
+          <td><input class="cell" data-p="${pi}" data-role="main" data-f="b" value="${p.main.b??''}"></td><td>主档（满分）</td></tr>
+      ${(p.branches||[]).map((b,bi)=>`<tr>
+          <td><input class="cell" data-p="${pi}" data-role="br" data-bi="${bi}" data-f="score" value="${b.score??''}"></td>
+          <td><input class="cell" data-p="${pi}" data-role="br" data-bi="${bi}" data-f="a" value="${b.a??''}"></td>
+          <td><input class="cell" data-p="${pi}" data-role="br" data-bi="${bi}" data-f="b" value="${b.b??''}"></td>
+          <td>过程分 <button class="danger" style="padding:.1rem .5rem;font-size:.72rem" onclick="removeBranch(${pi},${bi})">✕</button></td></tr>`).join('')}
+      </table>
+      <button class="ghost" style="padding:.2rem .8rem;font-size:.78rem;margin-top:.35rem" onclick="addBranch(${pi})">＋ 过程分</button>
+    </div>`).join('');
+  box.querySelectorAll('input.cell').forEach(inp=>{ inp.onchange=()=>{
+    const p=problems[+inp.dataset.p], f=inp.dataset.f, v=parseFloat(inp.value), val=isNaN(v)?undefined:v;
+    if(inp.dataset.role==='main') p.main[f]=val; else p.branches[+inp.dataset.bi][f]=val; }; });
+}
+const addProblem=()=>{ problems.push({main:{score:undefined,a:undefined,b:undefined},branches:[]}); render(); };
+const removeProblem=i=>{ problems.splice(i,1); render(); };
+const addBranch=i=>{ problems[i].branches.push({score:undefined,a:undefined,b:undefined}); render(); };
+const removeBranch=(i,j)=>{ problems[i].branches.splice(j,1); render(); };
 
-    function removeProblem(index) {
-        syncProblemsFromDOM();
-        if (problems.length <= 1) {
-            if (!confirm('至少保留一道题，确定删除吗？')) return;
-        }
-        problems.splice(index, 1);
-        render();
-    }
+function readProblems(){ // 从输入框收集并校验
+  problems=problems.filter(p=>p.main.score>0)
+    .map(p=>({main:p.main, branches:(p.branches||[]).filter(b=>b.score>0&&b.score<p.main.score)}));
+  return problems.length>0;
+}
 
-    function addBranch(pIdx) {
-        syncProblemsFromDOM();
-        problems[pIdx].branches.push({ score: undefined, a: undefined, b: undefined });
-        render();
-    }
+// ============ JSON 导入 / 导出 ============
+function exportJSON(){
+  if(!readProblems()) return alert('没有有效题目');
+  const T=Math.round(parseFloat(document.getElementById('T').value)||180);
+  const cfg={ version:1, T, note:'a/b/μ 单位：一试1≈10，二试中档≈15，CMO压轴入门≈17',
+    problems:problems.map(p=>({ main:clean(p.main),
+      branches:(p.branches||[]).map(clean) })) };
+  const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='试卷配置.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function clean(o){ const c={}; for(const k of ['score','a','b']) c[k]=o[k]; return c; }
+function importJSON(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{
+    const cfg=JSON.parse(rd.result);
+    if(!cfg.problems||!cfg.problems.length) throw new Error('缺 problems');
+    problems=cfg.problems.map(p=>({ main:clean(p.main||{}),
+      branches:(p.branches||[]).map(clean) }));
+    if(cfg.T>0) document.getElementById('T').value=cfg.T;
+    render(); alert('导入成功：'+problems.length+' 道大题');
+  }catch(e){ alert('JSON 解析失败：'+e.message); } };
+  rd.readAsText(file); ev.target.value='';
+}
 
-    function removeBranch(pIdx, bIdx) {
-        syncProblemsFromDOM();
-        if (problems[pIdx].branches.length === 0) return;
-        problems[pIdx].branches.splice(bIdx, 1);
-        render();
-    }
+// ============ 计算 ============
+function computeAll(){
+  if(!readProblems()) return alert('至少一道有效大题（满分>0）');
+  render();
+  const T=Math.round(parseFloat(document.getElementById('T').value));
+  const mu=parseFloat(document.getElementById('mu').value);
+  const D=parseFloat(document.getElementById('D').value);
+  const q=parseFloat(document.getElementById('q').value);
+  if(!(T>0)) return alert('T>0');
+  const S=Smax(), M=bis(mu=>Eof(mu,T), S/2);
+  const pl=plan(mu,T);
+  const {dp,ts,E}=getDist(mu,T);
 
-    // ---------- 数据收集（从 problems 中提取有效数据，并校验） ----------
-    function collectValidProblems() {
-        // 先同步一次，确保 problems 最新
-        syncProblemsFromDOM();
-        const valid = [];
-        let hasError = false;
-        for (const p of problems) {
-            const main = p.main;
-            if (!main.score || main.score <= 0) {
-                alert('每道题必须填写有效的满分（>0）。');
-                hasError = true;
-                break;
-            }
-            // 过滤过程分：只保留得分大于0且小于满分的
-            const branches = p.branches.filter(b => b.score && b.score > 0 && b.score < main.score);
-            // 去重（若得分相同，保留后一个？简单处理：按得分升序，若重复则忽略后面的）
-            const sorted = branches.sort((a,b) => a.score - b.score);
-            const unique = [];
-            let last = -Infinity;
-            for (const item of sorted) {
-                if (item.score !== last) {
-                    unique.push(item);
-                    last = item.score;
-                }
-            }
-            // 检查是否有过程分等于满分
-            if (unique.some(b => b.score >= main.score)) {
-                alert('过程分得分必须小于满分。');
-                hasError = true;
-                break;
-            }
-            valid.push({
-                main: { score: main.score, a: main.a || 0, b: main.b || 0 },
-                branches: unique
-            });
-        }
-        if (hasError) return null;
-        return valid;
-    }
+  document.getElementById('out').style.display='block';
+  document.getElementById('overview').textContent=`n=${problems.length} ｜ 满分 ${S} ｜ T=${T}min ｜ E(μ=${mu})=${E.toFixed(2)}`;
+  const alloc=ts.map((t,i)=>`#${i+1}: ${t}min`).join('  ');
+  document.getElementById('allocNote').textContent='最优分配 t_i：'+alloc+'（=0 即理性放弃）';
 
-    // ---------- 核心计算 ----------
-    function computeExpectedAndDeriv(mu, problems, totalTime) {
-        const n = problems.length;
-        if (n === 0) return { E: 0, dE: 0 };
-        const t = totalTime / n;
-        let E = 0, dE = 0;
-        for (const prob of problems) {
-            // 所有档次：主 + 过程分，按得分升序
-            const all = [prob.main, ...prob.branches];
-            all.sort((a,b) => a.score - b.score);
-            // 去重
-            const unique = [];
-            let lastScore = -Infinity;
-            for (const item of all) {
-                if (item.score !== lastScore) {
-                    unique.push(item);
-                    lastScore = item.score;
-                }
-            }
-            let prevV = 0;
-            for (const item of unique) {
-                const v = item.score;
-                if (v <= prevV) continue;
-                const delta = v - prevV;
-                const a = item.a;
-                const b = item.b;
-                // 修正符号：P(X > a) = Φ((μ - a)/0.5)
-                const z1 = (mu - a) / 0.5;
-                const z2 = (Math.log2(t) - b + 0.5 * mu + 2.5) / 0.5;
-                const p1 = normCDF(z1);
-                const p2 = normCDF(z2);
-                const P_ge = p1 * p2;
-                // 导数：d/dμ p1 = (1/0.5)*φ(z1) = 2*φ(z1)
-                const dp1 = 2.0 * normPDF(z1);
-                const dp2 = 1.0 * normPDF(z2);
-                const dP_ge = dp1 * p2 + p1 * dp2;
-                E += delta * P_ge;
-                dE += delta * dP_ge;
-                prevV = v;
-            }
-        }
-        return { E, dE };
-    }
+  document.getElementById('Mbox').textContent=`M = ${M.toFixed(3)}`;
+  document.getElementById('Mhint').textContent=`E(M)=${S/2}。M越大卷子越难（与a、μ同单位）。`;
 
-    function findM(problems, totalTime, tol = 1e-7) {
-        const n = problems.length;
-        if (n === 0) return 0;
-        let S_max = 0;
-        for (const p of problems) S_max += p.main.score;
-        if (S_max === 0) return 0;
-        const target = S_max / 2;
-        let mu_low = -10, mu_high = 10;
-        let E_low = computeExpectedAndDeriv(mu_low, problems, totalTime).E;
-        while (E_low > target) { mu_low -= 5; E_low = computeExpectedAndDeriv(mu_low, problems, totalTime).E; }
-        let E_high = computeExpectedAndDeriv(mu_high, problems, totalTime).E;
-        while (E_high < target) { mu_high += 5; E_high = computeExpectedAndDeriv(mu_high, problems, totalTime).E; }
-        for (let i = 0; i < 120; i++) {
-            const mu_mid = (mu_low + mu_high) / 2;
-            const E_mid = computeExpectedAndDeriv(mu_mid, problems, totalTime).E;
-            if (E_mid < target) mu_low = mu_mid;
-            else mu_high = mu_mid;
-            if (mu_high - mu_low < tol) break;
-        }
-        return (mu_low + mu_high) / 2;
-    }
+  // ③ 矩估计 μ̂(D)
+  if(!(D>0&&D<S)){
+    document.getElementById('muhat').textContent='—（需 0<D<满分）';
+    document.getElementById('muhat2').textContent='';
+  }else{
+    const mh=bis(mu=>Eof(mu,T), D);
+    const g90=getDist(mh,T); // 该 μ 下的分布
+    const pge=tailGe(g90.dp,D), pEx=(g90.dp.get(D)||0);
+    document.getElementById('muhat').textContent=`μ̂ = ${mh.toFixed(3)}`;
+    document.getElementById('muhat2').innerHTML=
+      `含义：期望分 = ${D} 时的实力。<br>`+
+      `自洽检验：P(S≥${D}｜μ̂)=<b>${pge.toFixed(3)}</b>，P(S=${D}｜μ̂)=${pEx.toFixed(3)}。<br>`+
+      `⚠ 这是“均值反演”，不是“达标概率”口径；一次考试估μ噪声约±0.3~0.5，90分与100分对应的μ̂相差0.2~0.3属正常离散噪声。`;
+  }
 
-    // ---------- 界面计算 ----------
-    function computeDifficulty() {
-        const totalTime = parseFloat(document.getElementById('totalTime').value);
-        if (isNaN(totalTime) || totalTime <= 0) {
-            alert('请先输入有效的总考试时间（>0）。');
-            return;
-        }
-        const probs = collectValidProblems();
-        if (!probs) return;
-        let S_max = 0;
-        for (const p of probs) S_max += p.main.score;
-        if (S_max === 0) { alert('满分不能为0。'); return; }
-        try {
-            const M = findM(probs, totalTime);
-            document.getElementById('mValue').textContent = M.toFixed(6);
-            document.getElementById('difficultyResult').style.display = 'block';
-            document.getElementById('muResult').style.display = 'none';
-            window._lastProbs = probs;
-            window._lastM = M;
-            window._lastTotalTime = totalTime;
-            const { dE } = computeExpectedAndDeriv(M, probs, totalTime);
-            window._lastSlope = dE;
-            window._lastSmax = S_max;
-        } catch(e) { alert('计算失败：'+e.message); }
-    }
+  // ④ 分位数难度线 μ_D(q)
+  if(!(D>0&&D<S)){
+    document.getElementById('quantLine').textContent='—';
+    document.getElementById('quantNote').textContent='';
+  }else{
+    const mq=bis(mu=>tailGe(getDist(mu,T).dp,D), q);
+    document.getElementById('quantLine').textContent=`μ_${D}(${q}) = ${mq.toFixed(3)}`;
+    document.getElementById('quantNote').innerHTML=
+      `解 P(S≥${D}; μ)=${q} 得到的“稳上${D}分线”。若与相邻分数线 μ_${Math.round(D)===S?S-10:Math.min(S,Math.max(1,D+10))}(...) 接近，说明这两条线在概率意义上基本同档（常见于离散满分档：S≥90 与 S≥100 几乎是同一事件）。<br>`+
+      `<b>用哪一个μ？</b>若问“某人重考≥${D}分的概率”，用他本人实考分算出的 μ̂ 代入 P(S≥${D})；若问“这张卷子${D}分线相当于什么实力”，用 μ_${D}(q)（建议 q=0.5~0.8）。两者别混。`;
+  }
 
-    function estimateMu() {
-        if (!window._lastProbs || window._lastM === undefined) {
-            alert('请先计算试卷难度 M。');
-            return;
-        }
-        const D = parseFloat(document.getElementById('scoreInput').value);
-        const S_max = window._lastSmax;
-        if (isNaN(D) || D <= 0) { alert('请输入有效的得分 D（>0）。'); return; }
-        if (D >= S_max) {
-            if (D > S_max * 0.99) {
-                document.getElementById('muValue').textContent = '→ +∞ (接近满分)';
-                document.getElementById('muHint').textContent = '考生实力远超试卷水平，无法精确估计。';
-                document.getElementById('muResult').style.display = 'block';
-                return;
-            } else { alert(`得分必须小于满分 (${S_max})。`); return; }
-        }
-        const M = window._lastM;
-        const dE = window._lastSlope;
-        if (dE <= 0) { alert('斜率为非正，无法估计。'); return; }
-        const k = 4.0 * dE / S_max;
-        const mu_est = M + (1.0 / k) * Math.log(D / (S_max - D));
-        document.getElementById('muValue').textContent = mu_est.toFixed(6);
-        document.getElementById('muHint').textContent = `D = ${D}，满分 ${S_max}`;
-        document.getElementById('muResult').style.display = 'block';
-    }
-
-    // ---------- 初始化：一道空白题 ----------
-    problems = [{ main: { score: undefined, a: undefined, b: undefined }, branches: [] }];
-    render();
-
-    // 暴露全局函数
-    window.addProblem = addProblem;
-    window.removeProblem = removeProblem;
-    window.addBranch = addBranch;
-    window.removeBranch = removeBranch;
-    window.computeDifficulty = computeDifficulty;
-    window.estimateMu = estimateMu;
+  // ⑤ 分布表
+  const rows=[...dp].sort((a,b)=>a[0]-b[0]);
+  const suffix=new Map(); let acc=0;
+  for(let i=rows.length-1;i>=0;i--){ acc+=rows[i][1]; suffix.set(rows[i][0],acc); }
+  let html='';
+  for(const [s,p] of rows){ const hit=Math.abs(s-D)<1e-9;
+    html+=`<tr${hit?' style="background:#dbeafe;font-weight:700"':''}><td>${s}</td><td>${p.toFixed(5)}</td><td>${suffix.get(s).toFixed(5)}</td><td>${hit?'◀ D':''}</td></tr>`; }
+  document.getElementById('distTab').innerHTML=
+    `<table><tr><th>得分 s</th><th>P(S=s)</th><th>P(S≥s)</th><th></th></tr>${html}</table>`;
+  const pGe=tailGe(dp,D), pEx2=dp.get(D)||0;
+  document.getElementById('distSum').innerHTML=
+    `μ=${mu}：E=<b>${E.toFixed(2)}</b>；P(S=${D})=${pEx2.toFixed(4)}；P(S≥${D})=<b>${pGe.toFixed(4)}</b>。`;
+}
+render();
 </script>
 </body>
 </html>
